@@ -1,0 +1,3 @@
+# This is an chat app made using MERN stack with socket.io real real time communication...
+
+Link to the app : Coming soon....!
