@@ -1,12 +1,16 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Logo from "../assets/logo.svg";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import axios from "axios";
+
+import { registerRoute } from "../utils/ApiRoutes";
 const Register = () => {
-  const [values, setValue] = useState({
+  const navigate = useNavigate();
+  const [values, setValues] = useState({
     username: "",
     email: "",
     password: "",
@@ -21,7 +25,7 @@ const Register = () => {
     theme: "dark",
   };
   const handleChange = (event) => {
-    setValue({ ...values, [event.target.name]: event.target.value });
+    setValues({ ...values, [event.target.name]: event.target.value });
   };
 
   const handleValidation = () => {
@@ -30,7 +34,7 @@ const Register = () => {
     if (password !== confirmPassword) {
       toast.error("password and confirm password should be same", toastOptions);
       return false;
-    } else if (username.length < 4) {
+    } else if (username.length < 3) {
       toast.error(
         "username should be atleast longer then 4 characters",
         toastOptions
@@ -48,9 +52,29 @@ const Register = () => {
     }
     return true;
   };
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    handleValidation();
+    if (handleValidation()) {
+      console.log("in validation", registerRoute);
+      const { email, username, password } = values;
+      console.log("in ", registerRoute);
+
+      const { data } = await axios.post(registerRoute, {
+        username,
+        email,
+        password,
+      });
+
+      console.log("axios susccessfull");
+
+      if (data.status == false) {
+        toast.error(data.msg, toastOptions);
+      }
+      if (data.status == true) {
+        localStorage.setItem("chat-app-user", JSON.stringify(data.user));
+        navigate("/");
+      }
+    }
   };
 
   return (
